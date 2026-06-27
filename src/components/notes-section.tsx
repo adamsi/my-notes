@@ -7,7 +7,6 @@ import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
-import { SearchBar } from "@/components/search-bar";
 import { NoteCard } from "@/components/note-card";
 
 export function NotesSection({
@@ -45,14 +44,11 @@ export function NotesSection({
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      <div className="space-y-1">
-        <SearchBar initialQuery={query} />
-        <p className="px-1 text-xs text-muted-foreground">
-          {count} {count === 1 ? "note" : "notes"}
-          {query ? ` matching “${query}”` : ""}
-        </p>
-      </div>
+    <div className="space-y-4 pb-24">
+      <p className="px-1 text-xs text-muted-foreground">
+        {count} {count === 1 ? "note" : "notes"}
+        {query ? ` matching “${query}”` : ""}
+      </p>
 
       {notes.length === 0 ? (
         <Card className="flex flex-col items-center gap-2 p-10 text-center">

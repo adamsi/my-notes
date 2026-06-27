@@ -4,9 +4,8 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { putObject, deleteObjects } from "@/lib/storage";
 import { PAGE_SIZE, type Note, type NoteFile } from "@/lib/types";
-
-const BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET ?? "my-notes";
 
 async function db() {
   return createClient(await cookies());
@@ -20,6 +19,31 @@ export type IncomingFile = {
   mime_type: string;
   size: number;
 };
+
+/** Upload attachments to storage (server-side, via S3) and return their metadata. */
+export async function uploadFiles(
+  userId: string,
+  formData: FormData
+): Promise<{ files?: IncomingFile[]; error?: string }> {
+  const files = formData.getAll("files").filter((f): f is File => f instanceof File);
+  try {
+    const uploaded = await Promise.all(
+      files.map(async (file) => {
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const path = await putObject(userId, { name: file.name, type: file.type, bytes });
+        return {
+          name: file.name,
+          path,
+          mime_type: file.type || "application/octet-stream",
+          size: file.size,
+        };
+      })
+    );
+    return { files: uploaded };
+  } catch {
+    return { error: "File upload failed. Please try again." };
+  }
+}
 
 /** Create a user from a form. Redirects to the user's page on success. */
 export async function createUser(
@@ -125,7 +149,7 @@ export async function updateNote(input: {
 
   if (input.removeFiles.length) {
     const ids = input.removeFiles.map((f) => f.id);
-    await supabase.storage.from(BUCKET).remove(input.removeFiles.map((f) => f.path));
+    await deleteObjects(input.removeFiles.map((f) => f.path));
     await supabase.from("note_files").delete().in("id", ids);
   }
 
@@ -146,7 +170,7 @@ export async function deleteNote(input: {
   const supabase = await db();
 
   if (input.paths.length) {
-    await supabase.storage.from(BUCKET).remove(input.paths);
+    await deleteObjects(input.paths);
   }
   const { error } = await supabase.from("notes").delete().eq("id", input.noteId);
   if (error) return { error: "Could not delete the note." };

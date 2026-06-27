@@ -2,8 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Paperclip, X, Loader2 } from "lucide-react";
-import { createNote } from "@/lib/actions";
-import { uploadFiles } from "@/lib/upload";
+import { createNote, uploadFiles } from "@/lib/actions";
 import { formatFileSize } from "@/lib/format";
 import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,17 @@ export function NoteComposer({
     }
     setBusy(true);
     try {
-      const uploaded = files.length ? await uploadFiles(userId, files) : [];
+      let uploaded: { name: string; path: string; mime_type: string; size: number }[] = [];
+      if (files.length) {
+        const fd = new FormData();
+        files.forEach((f) => fd.append("files", f));
+        const up = await uploadFiles(userId, fd);
+        if (up.error || !up.files) {
+          setError(up.error ?? "File upload failed.");
+          return;
+        }
+        uploaded = up.files;
+      }
       const result = await createNote({ userId, username, body, files: uploaded });
       if (result.error || !result.note) {
         setError(result.error ?? "Could not save the note.");

@@ -11,8 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import { deleteNote, updateNote } from "@/lib/actions";
-import { uploadFiles } from "@/lib/upload";
+import { deleteNote, updateNote, uploadFiles } from "@/lib/actions";
 import { formatDate, formatFileSize, wasEdited } from "@/lib/format";
 import type { Note, NoteFile } from "@/lib/types";
 import { Card } from "@/components/ui/card";
@@ -77,7 +76,17 @@ export function NoteCard({
       const removeFiles = (note.note_files ?? []).filter(
         (f) => !keptFiles.some((k) => k.id === f.id)
       );
-      const addFiles = newFiles.length ? await uploadFiles(note.user_id, newFiles) : [];
+      let addFiles: { name: string; path: string; mime_type: string; size: number }[] = [];
+      if (newFiles.length) {
+        const fd = new FormData();
+        newFiles.forEach((f) => fd.append("files", f));
+        const up = await uploadFiles(note.user_id, fd);
+        if (up.error || !up.files) {
+          setError(up.error ?? "File upload failed.");
+          return;
+        }
+        addFiles = up.files;
+      }
       const result = await updateNote({
         noteId: note.id,
         username,
