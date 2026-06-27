@@ -6,7 +6,7 @@ import { getNotes } from "@/lib/actions";
 import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { NoteComposer } from "@/components/note-composer";
+import { CreateNoteDialog } from "@/components/create-note-dialog";
 import { SearchBar } from "@/components/search-bar";
 import { NoteCard } from "@/components/note-card";
 
@@ -45,16 +45,7 @@ export function NotesSection({
   }
 
   return (
-    <div className="space-y-6">
-      <NoteComposer
-        userId={userId}
-        username={username}
-        onCreated={(note) => {
-          setNotes((prev) => [note, ...prev]);
-          setCount((c) => c + 1);
-        }}
-      />
-
+    <div className="space-y-6 pb-24">
       <div className="space-y-1">
         <SearchBar initialQuery={query} />
         <p className="px-1 text-xs text-muted-foreground">
@@ -68,7 +59,9 @@ export function NotesSection({
           <NotebookPen className="h-8 w-8 text-muted-foreground" />
           <p className="font-medium">{query ? "No matching notes" : "No notes yet"}</p>
           <p className="text-sm text-muted-foreground">
-            {query ? "Try a different search." : "Write your first note above."}
+            {query
+              ? "Try a different search."
+              : "Tap “Create new note” to add your first one."}
           </p>
         </Card>
       ) : (
@@ -104,6 +97,15 @@ export function NotesSection({
           </p>
         </div>
       )}
+
+      <CreateNoteDialog
+        userId={userId}
+        username={username}
+        onCreated={(note) => {
+          setNotes((prev) => [note, ...prev]);
+          setCount((c) => c + 1);
+        }}
+      />
     </div>
   );
 }

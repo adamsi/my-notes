@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { NoteText } from "@/components/note-text";
 import { Attachments } from "@/components/attachments";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 const COLLAPSED_MAX_HEIGHT = 320;
 
@@ -47,6 +48,7 @@ export function NoteCard({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (!editing && contentRef.current) {
@@ -97,7 +99,6 @@ export function NoteCard({
   }
 
   async function handleDelete() {
-    if (!confirm("Delete this note? This cannot be undone.")) return;
     setBusy(true);
     try {
       const paths = (note.note_files ?? []).map((f) => f.path);
@@ -105,12 +106,14 @@ export function NoteCard({
       if (result.error) {
         setError(result.error);
         setBusy(false);
+        setConfirmOpen(false);
         return;
       }
       onDeleted?.(note.id);
     } catch {
       setError("Could not delete the note.");
       setBusy(false);
+      setConfirmOpen(false);
     }
   }
 
@@ -137,11 +140,11 @@ export function NoteCard({
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={handleDelete}
+              onClick={() => setConfirmOpen(true)}
               disabled={busy}
               aria-label="Delete note"
             >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         )}
@@ -273,6 +276,17 @@ export function NoteCard({
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
         </>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={(o) => !busy && setConfirmOpen(o)}
+        title="Delete this note?"
+        description="This permanently removes the note and its attachments. This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        loading={busy}
+        onConfirm={handleDelete}
+      />
     </Card>
   );
 }

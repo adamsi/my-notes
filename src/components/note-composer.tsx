@@ -8,7 +8,6 @@ import { formatFileSize } from "@/lib/format";
 import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 
 export function NoteComposer({
   userId,
@@ -58,12 +57,13 @@ export function NoteComposer({
   }
 
   return (
-    <Card className="p-4">
+    <div>
       <Textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write a note… paste links, and attach files below."
-        className="min-h-24 resize-y border-0 p-0 shadow-none focus-visible:ring-0"
+        className="min-h-32 resize-y"
+        autoFocus
         aria-label="Note text"
       />
 
@@ -118,6 +118,6 @@ export function NoteComposer({
           {busy ? "Saving…" : "Add note"}
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }

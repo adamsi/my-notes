@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import Image from "next/image";
+import { Logo } from "@/components/logo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,17 +31,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
-          <div className="mx-auto flex h-14 w-full max-w-3xl items-center px-4">
+          <div className="mx-auto flex h-16 w-full max-w-3xl items-center px-4">
             <Link href="/" className="flex items-center gap-2.5 font-semibold">
-              <Image
-                src="/mynotes.png"
-                alt="mynotes logo"
-                width={44}
-                height={44}
-                className="h-11 w-11"
-                priority
-              />
-              <span className="text-xl tracking-tight">mynotes</span>
+              <Logo className="h-10 w-10" />
+              <span className="text-2xl font-bold tracking-tight">mynotes</span>
             </Link>
           </div>
         </header>
