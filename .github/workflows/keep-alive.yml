@@ -1,0 +1,31 @@
+name: Supabase keep-alive
+
+# Hits the Supabase REST API every 15 minutes so the free-tier project
+# does not pause from inactivity. Just selects users — no writes.
+# The publishable (anon) key is public by design (it ships in the browser
+# bundle and is guarded by RLS), so it's safe to keep here.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Select users from Supabase
+        env:
+          SUPABASE_URL: https://vsvzbrzpmjydcqeegklq.supabase.co
+          SUPABASE_KEY: sb_publishable_ZO3ULi4ImPBJz7tW-adv_w_4XSUCCzv
+        run: |
+          status=$(curl -sS -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/users?select=*" \
+            -H "apikey: $SUPABASE_KEY" \
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "Accept-Profile: mynotes")
+          echo "HTTP $status"
+          if [ "$status" != "200" ]; then
+            echo "Keep-alive request failed with status $status"
+            exit 1
+          fi
