@@ -28,3 +28,15 @@ create table mynotes.note_files (
 create index notes_user_id_idx     on mynotes.notes (user_id);
 create index notes_created_at_idx   on mynotes.notes (created_at desc);
 create index note_files_note_id_idx on mynotes.note_files (note_id);
+
+grant usage on schema mynotes to anon, authenticated;
+grant all on all tables in schema mynotes to anon, authenticated;
+alter default privileges in schema mynotes grant all on tables to anon, authenticated;
+
+alter table mynotes.users      enable row level security;
+alter table mynotes.notes      enable row level security;
+alter table mynotes.note_files enable row level security;
+
+create policy "public_all_users"      on mynotes.users      for all using (true) with check (true);
+create policy "public_all_notes"      on mynotes.notes      for all using (true) with check (true);
+create policy "public_all_note_files" on mynotes.note_files for all using (true) with check (true);
