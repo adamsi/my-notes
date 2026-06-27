@@ -32,16 +32,16 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
           <div className="mx-auto flex h-14 w-full max-w-3xl items-center px-4">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
+            <Link href="/" className="flex items-center gap-2.5 font-semibold">
               <Image
                 src="/mynotes.png"
                 alt="mynotes logo"
-                width={28}
-                height={28}
-                className="h-7 w-7"
+                width={44}
+                height={44}
+                className="h-11 w-11"
                 priority
               />
-              <span className="text-lg tracking-tight">mynotes</span>
+              <span className="text-xl tracking-tight">mynotes</span>
             </Link>
           </div>
         </header>
