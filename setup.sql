@@ -1,25 +1,35 @@
 -- mynotes — Supabase schema setup
 -- Run this once in the Supabase Dashboard → SQL Editor.
 -- This app has NO authentication by design, so policies are fully public (anon).
+--
+-- IMPORTANT: after running this, expose the `mynotes` schema to the Data API:
+--   Dashboard → Project Settings → API → "Exposed schemas" → add `mynotes` → Save.
+-- Otherwise the REST API (supabase-js) cannot see these tables.
+
+-- ── Schema ───────────────────────────────────────────────────────────────────
+drop schema if exists mynotes cascade;
+create schema mynotes;
+
+grant usage on schema mynotes to anon, authenticated, service_role;
 
 -- ── Tables ──────────────────────────────────────────────────────────────────
-create table if not exists public.users (
+create table mynotes.users (
   id         uuid primary key default gen_random_uuid(),
   name       text not null unique,
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.notes (
+create table mynotes.notes (
   id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references public.users (id) on delete cascade,
+  user_id    uuid not null references mynotes.users (id) on delete cascade,
   body       text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.note_files (
+create table mynotes.note_files (
   id         uuid primary key default gen_random_uuid(),
-  note_id    uuid not null references public.notes (id) on delete cascade,
+  note_id    uuid not null references mynotes.notes (id) on delete cascade,
   name       text not null,
   path       text not null,
   mime_type  text not null default '',
@@ -27,22 +37,23 @@ create table if not exists public.note_files (
   created_at timestamptz not null default now()
 );
 
-create index if not exists notes_user_id_idx       on public.notes (user_id);
-create index if not exists notes_created_at_idx     on public.notes (created_at desc);
-create index if not exists note_files_note_id_idx   on public.note_files (note_id);
+create index notes_user_id_idx     on mynotes.notes (user_id);
+create index notes_created_at_idx   on mynotes.notes (created_at desc);
+create index note_files_note_id_idx on mynotes.note_files (note_id);
+
+-- REST API roles need table privileges in addition to RLS policies.
+grant all on all tables in schema mynotes to anon, authenticated, service_role;
+alter default privileges in schema mynotes
+  grant all on tables to anon, authenticated, service_role;
 
 -- ── Row Level Security (public, no-auth app) ─────────────────────────────────
-alter table public.users      enable row level security;
-alter table public.notes      enable row level security;
-alter table public.note_files enable row level security;
+alter table mynotes.users      enable row level security;
+alter table mynotes.notes      enable row level security;
+alter table mynotes.note_files enable row level security;
 
-drop policy if exists "public_all_users"      on public.users;
-drop policy if exists "public_all_notes"      on public.notes;
-drop policy if exists "public_all_note_files" on public.note_files;
-
-create policy "public_all_users"      on public.users      for all using (true) with check (true);
-create policy "public_all_notes"      on public.notes      for all using (true) with check (true);
-create policy "public_all_note_files" on public.note_files for all using (true) with check (true);
+create policy "public_all_users"      on mynotes.users      for all using (true) with check (true);
+create policy "public_all_notes"      on mynotes.notes      for all using (true) with check (true);
+create policy "public_all_note_files" on mynotes.note_files for all using (true) with check (true);
 
 -- ── Storage bucket: my-notes ─────────────────────────────────────────────────
 -- Create a PUBLIC bucket named `my-notes`
