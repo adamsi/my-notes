@@ -23,8 +23,8 @@ export function NoteComposer({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function addFiles(list: FileList | null) {
-    if (list) setFiles((prev) => [...prev, ...Array.from(list)]);
+  function addFiles(picked: File[]) {
+    if (picked.length) setFiles((prev) => [...prev, ...picked]);
   }
 
   function removeFile(index: number) {
@@ -107,8 +107,9 @@ export function NoteComposer({
           multiple
           hidden
           onChange={(e) => {
-            addFiles(e.target.files);
+            const picked = Array.from(e.target.files ?? []);
             e.target.value = "";
+            addFiles(picked);
           }}
         />
         <Button

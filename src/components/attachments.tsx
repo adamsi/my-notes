@@ -14,22 +14,37 @@ export function Attachments({ files }: { files: NoteFile[] }) {
       {images.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {images.map((file) => (
-            <a
+            <div
               key={file.id}
-              href={publicUrl(file.path)}
-              target="_blank"
-              rel="noopener noreferrer"
               className="group relative overflow-hidden rounded-lg border bg-muted"
-              title={file.name}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={publicUrl(file.path)}
-                alt={file.name}
-                loading="lazy"
-                className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
-              />
-            </a>
+              {/* Click the image to open it in a new tab */}
+              <a
+                href={publicUrl(file.path)}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Open ${file.name} in a new tab`}
+                className="block"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={publicUrl(file.path)}
+                  alt={file.name}
+                  loading="lazy"
+                  className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
+                />
+              </a>
+              {/* Download button overlay */}
+              <a
+                href={downloadUrl(file.path, file.name)}
+                download={file.name}
+                aria-label={`Download ${file.name}`}
+                title={`Download ${file.name}`}
+                className="absolute right-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-md bg-background/80 text-foreground opacity-0 backdrop-blur transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100"
+              >
+                <Download className="h-4 w-4" />
+              </a>
+            </div>
           ))}
         </div>
       )}

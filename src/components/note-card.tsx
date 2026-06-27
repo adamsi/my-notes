@@ -219,8 +219,9 @@ export function NoteCard({
             multiple
             hidden
             onChange={(e) => {
-              if (e.target.files) setNewFiles((p) => [...p, ...Array.from(e.target.files!)]);
+              const picked = Array.from(e.target.files ?? []);
               e.target.value = "";
+              if (picked.length) setNewFiles((p) => [...p, ...picked]);
             }}
           />
           <div className="flex flex-wrap items-center justify-between gap-2">
