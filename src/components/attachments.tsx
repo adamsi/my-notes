@@ -1,5 +1,5 @@
 import { Download, FileText } from "lucide-react";
-import { formatFileSize, isImage, publicUrl } from "@/lib/format";
+import { downloadUrl, formatFileSize, isImage, publicUrl } from "@/lib/format";
 import type { NoteFile } from "@/lib/types";
 
 /** Image thumbnails inline; every other file type as a download chip. */
@@ -37,22 +37,35 @@ export function Attachments({ files }: { files: NoteFile[] }) {
       {others.length > 0 && (
         <ul className="flex flex-col gap-2">
           {others.map((file) => (
-            <li key={file.id}>
+            <li
+              key={file.id}
+              className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
+            >
+              <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
+              {/* Click the name to open the file in a new tab */}
               <a
                 href={publicUrl(file.path)}
                 target="_blank"
                 rel="noopener noreferrer"
-                download={file.name}
-                className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
+                className="min-w-0 flex-1"
+                title={`Open ${file.name} in a new tab`}
               >
-                <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{file.name}</span>
-                  <span className="block text-xs text-muted-foreground">
-                    {formatFileSize(file.size)}
-                  </span>
+                <span className="block truncate text-sm font-medium hover:underline">
+                  {file.name}
                 </span>
-                <Download className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="block text-xs text-muted-foreground">
+                  {formatFileSize(file.size)}
+                </span>
+              </a>
+              {/* Download button actually downloads the file */}
+              <a
+                href={downloadUrl(file.path, file.name)}
+                download={file.name}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+                aria-label={`Download ${file.name}`}
+                title={`Download ${file.name}`}
+              >
+                <Download className="h-4 w-4" />
               </a>
             </li>
           ))}

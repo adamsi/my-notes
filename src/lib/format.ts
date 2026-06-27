@@ -36,6 +36,14 @@ export function publicUrl(path: string): string {
   return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 }
 
+/**
+ * URL that forces a download (Content-Disposition: attachment) via Supabase's
+ * `?download` param — works cross-origin where the `download` attribute does not.
+ */
+export function downloadUrl(path: string, name: string): string {
+  return `${publicUrl(path)}?download=${encodeURIComponent(name)}`;
+}
+
 const URL_REGEX = /(https?:\/\/[^\s<]+[^\s<.,:;"')\]!?])/gi;
 
 export type TextPart = { type: "text" | "link"; value: string };
