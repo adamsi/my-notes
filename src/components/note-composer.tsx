@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Paperclip, X, Loader2 } from "lucide-react";
 import { createNote } from "@/lib/actions";
 import { uploadFiles } from "@/lib/upload";
 import { formatFileSize } from "@/lib/format";
+import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -13,11 +13,12 @@ import { Card } from "@/components/ui/card";
 export function NoteComposer({
   userId,
   username,
+  onCreated,
 }: {
   userId: string;
   username: string;
+  onCreated: (note: Note) => void;
 }) {
-  const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [body, setBody] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -42,13 +43,13 @@ export function NoteComposer({
     try {
       const uploaded = files.length ? await uploadFiles(userId, files) : [];
       const result = await createNote({ userId, username, body, files: uploaded });
-      if (result.error) {
-        setError(result.error);
+      if (result.error || !result.note) {
+        setError(result.error ?? "Could not save the note.");
         return;
       }
       setBody("");
       setFiles([]);
-      router.refresh();
+      onCreated(result.note);
     } catch {
       setError("Something went wrong while saving. Please try again.");
     } finally {

@@ -64,12 +64,14 @@ export async function getNotes(
   return { notes: (data as Note[]) ?? [], total: count ?? 0 };
 }
 
+export type NoteResult = ActionState & { note?: Note };
+
 export async function createNote(input: {
   userId: string;
   username: string;
   body: string;
   files: IncomingFile[];
-}): Promise<ActionState> {
+}): Promise<NoteResult> {
   const body = input.body.trim();
   if (!body && input.files.length === 0) {
     return { error: "Add some text or a file first." };
@@ -91,7 +93,19 @@ export async function createNote(input: {
   }
 
   revalidatePath(`/${encodeURIComponent(input.username)}`);
-  return {};
+  return { note: await fetchNote(supabase, note.id) };
+}
+
+async function fetchNote(
+  supabase: Awaited<ReturnType<typeof db>>,
+  noteId: string
+): Promise<Note | undefined> {
+  const { data } = await supabase
+    .from("notes")
+    .select("*, note_files(*)")
+    .eq("id", noteId)
+    .single();
+  return (data as Note) ?? undefined;
 }
 
 export async function updateNote(input: {
@@ -100,7 +114,7 @@ export async function updateNote(input: {
   body: string;
   addFiles: IncomingFile[];
   removeFiles: NoteFile[];
-}): Promise<ActionState> {
+}): Promise<NoteResult> {
   const supabase = await db();
 
   const { error } = await supabase
@@ -121,7 +135,7 @@ export async function updateNote(input: {
   }
 
   revalidatePath(`/${encodeURIComponent(input.username)}`);
-  return {};
+  return { note: await fetchNote(supabase, input.noteId) };
 }
 
 export async function deleteNote(input: {

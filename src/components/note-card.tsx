@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Pencil,
   Trash2,
@@ -27,13 +26,14 @@ const COLLAPSED_MAX_HEIGHT = 320;
 export function NoteCard({
   note,
   username,
+  onUpdated,
   onDeleted,
 }: {
   note: Note;
   username: string;
+  onUpdated?: (note: Note) => void;
   onDeleted?: (id: string) => void;
 }) {
-  const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
@@ -83,12 +83,12 @@ export function NoteCard({
         addFiles,
         removeFiles,
       });
-      if (result.error) {
-        setError(result.error);
+      if (result.error || !result.note) {
+        setError(result.error ?? "Could not save changes.");
         return;
       }
       setEditing(false);
-      router.refresh();
+      onUpdated?.(result.note);
     } catch {
       setError("Could not save changes. Please try again.");
     } finally {
@@ -108,7 +108,6 @@ export function NoteCard({
         return;
       }
       onDeleted?.(note.id);
-      router.refresh();
     } catch {
       setError("Could not delete the note.");
       setBusy(false);

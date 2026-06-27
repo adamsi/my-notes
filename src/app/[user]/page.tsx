@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getNotes } from "@/lib/actions";
 import type { User } from "@/lib/types";
-import { NoteComposer } from "@/components/note-composer";
-import { SearchBar } from "@/components/search-bar";
-import { NoteList } from "@/components/note-list";
+import { NotesSection } from "@/components/notes-section";
 
 export const dynamic = "force-dynamic";
 
@@ -35,18 +33,9 @@ export default async function UserPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{typedUser.name}&apos;s notes</h1>
-        <p className="text-sm text-muted-foreground">
-          {total} {total === 1 ? "note" : "notes"}
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold tracking-tight">{typedUser.name}&apos;s notes</h1>
 
-      <NoteComposer userId={typedUser.id} username={typedUser.name} />
-
-      <SearchBar initialQuery={query} />
-
-      <NoteList
+      <NotesSection
         key={query}
         userId={typedUser.id}
         username={typedUser.name}
