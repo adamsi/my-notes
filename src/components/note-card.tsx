@@ -127,7 +127,7 @@ export function NoteCard({
   }
 
   return (
-    <Card className="p-4">
+    <Card className="bg-muted p-4">
       <div className="mb-3 flex items-start justify-between gap-2">
         <p className="text-xs text-muted-foreground">
           {formatDate(note.created_at)}

@@ -1,4 +1,4 @@
-import { Download, FileText } from "lucide-react";
+import { Download, ExternalLink, FileText } from "lucide-react";
 import { downloadUrl, formatFileSize, isImage, publicUrl } from "@/lib/format";
 import type { NoteFile } from "@/lib/types";
 
@@ -57,13 +57,12 @@ export function Attachments({ files }: { files: NoteFile[] }) {
               className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
             >
               <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
-              {/* Click the name to open the file in a new tab */}
+              {/* Click the name to download the file */}
               <a
-                href={publicUrl(file.path)}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={downloadUrl(file.path, file.name)}
+                download={file.name}
                 className="min-w-0 flex-1"
-                title={`Open ${file.name} in a new tab`}
+                title={`Download ${file.name}`}
               >
                 <span className="block truncate text-sm font-medium hover:underline">
                   {file.name}
@@ -72,15 +71,16 @@ export function Attachments({ files }: { files: NoteFile[] }) {
                   {formatFileSize(file.size)}
                 </span>
               </a>
-              {/* Download button actually downloads the file */}
+              {/* Arrow button opens the file in a new tab */}
               <a
-                href={downloadUrl(file.path, file.name)}
-                download={file.name}
+                href={publicUrl(file.path)}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-                aria-label={`Download ${file.name}`}
-                title={`Download ${file.name}`}
+                aria-label={`Open ${file.name} in a new tab`}
+                title={`Open ${file.name} in a new tab`}
               >
-                <Download className="h-4 w-4" />
+                <ExternalLink className="h-4 w-4" />
               </a>
             </li>
           ))}
