@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { getNotes } from "@/lib/actions";
 import type { User } from "@/lib/types";
-import { SearchBar } from "@/components/search-bar";
 import { NotesSection } from "@/components/notes-section";
 
 export const dynamic = "force-dynamic";
@@ -33,20 +32,13 @@ export default async function UserPage({
   const { notes, total } = await getNotes(typedUser.id, query, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight">{typedUser.name}&apos;s notes</h1>
-        <SearchBar initialQuery={query} className="w-full sm:w-64" />
-      </div>
-
-      <NotesSection
-        key={query}
-        userId={typedUser.id}
-        username={typedUser.name}
-        query={query}
-        initialNotes={notes}
-        total={total}
-      />
-    </div>
+    <NotesSection
+      key={query}
+      userId={typedUser.id}
+      username={typedUser.name}
+      query={query}
+      initialNotes={notes}
+      total={total}
+    />
   );
 }

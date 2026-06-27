@@ -26,15 +26,8 @@ export function CreateNoteDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button
-            size="lg"
-            className="fixed bottom-6 right-6 z-30 h-12 gap-2 rounded-full px-5 shadow-lg sm:bottom-8 sm:right-8"
-          />
-        }
-      >
-        <Plus className="h-5 w-5" />
+      <DialogTrigger render={<Button className="shrink-0 gap-2" />}>
+        <Plus className="h-4 w-4" />
         Create new note
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">

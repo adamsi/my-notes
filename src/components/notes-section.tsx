@@ -7,6 +7,7 @@ import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CreateNoteDialog } from "@/components/create-note-dialog";
+import { SearchBar } from "@/components/search-bar";
 import { NoteCard } from "@/components/note-card";
 
 export function NotesSection({
@@ -44,7 +45,19 @@ export function NotesSection({
   }
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <SearchBar initialQuery={query} className="flex-1" />
+        <CreateNoteDialog
+          userId={userId}
+          username={username}
+          onCreated={(note) => {
+            setNotes((prev) => [note, ...prev]);
+            setCount((c) => c + 1);
+          }}
+        />
+      </div>
+
       <p className="px-1 text-xs text-muted-foreground">
         {count} {count === 1 ? "note" : "notes"}
         {query ? ` matching “${query}”` : ""}
@@ -93,15 +106,6 @@ export function NotesSection({
           </p>
         </div>
       )}
-
-      <CreateNoteDialog
-        userId={userId}
-        username={username}
-        onCreated={(note) => {
-          setNotes((prev) => [note, ...prev]);
-          setCount((c) => c + 1);
-        }}
-      />
     </div>
   );
 }
