@@ -66,6 +66,34 @@ export async function createUser(
   redirect(`/${encodeURIComponent(name)}`);
 }
 
+/** Delete one or more users (and their notes + files). Requires the passkey. */
+export async function deleteUsers(
+  userIds: string[],
+  passKey: string
+): Promise<ActionState> {
+  if (passKey !== process.env.DELETE_PASSKEY) return { error: "Incorrect passkey." };
+  if (!userIds.length) return { error: "No users selected." };
+
+  const supabase = await db();
+
+  // Remove stored files for all of these users' notes first.
+  const { data: notes } = await supabase
+    .from("notes")
+    .select("note_files(path)")
+    .in("user_id", userIds);
+  const paths = (notes ?? []).flatMap(
+    (n: { note_files?: { path: string }[] }) => (n.note_files ?? []).map((f) => f.path)
+  );
+  if (paths.length) await deleteObjects(paths);
+
+  // Deleting users cascades to their notes and note_files rows.
+  const { error } = await supabase.from("users").delete().in("id", userIds);
+  if (error) return { error: "Could not delete users. Please try again." };
+
+  revalidatePath("/");
+  return {};
+}
+
 /** Paged, optionally-searched notes for a user (newest first). */
 export async function getNotes(
   userId: string,
