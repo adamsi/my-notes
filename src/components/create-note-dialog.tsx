@@ -4,14 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import type { Note } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { NoteComposer } from "@/components/note-composer";
+import { NoteDialog } from "@/components/note-dialog";
 
 export function CreateNoteDialog({
   userId,
@@ -25,24 +18,18 @@ export function CreateNoteDialog({
   const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="shrink-0 gap-2" />}>
+    <>
+      <Button className="shrink-0 gap-2" onClick={() => setOpen(true)}>
         <Plus className="h-4 w-4" />
         Create new note
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>New note</DialogTitle>
-        </DialogHeader>
-        <NoteComposer
-          userId={userId}
-          username={username}
-          onCreated={(note) => {
-            onCreated(note);
-            setOpen(false);
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+      </Button>
+      <NoteDialog
+        open={open}
+        onOpenChange={setOpen}
+        userId={userId}
+        username={username}
+        onSaved={onCreated}
+      />
+    </>
   );
 }
